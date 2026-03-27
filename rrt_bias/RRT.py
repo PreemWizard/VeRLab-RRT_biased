@@ -76,6 +76,61 @@ class RRT:
 
         self.trees.append(T)
 
+    def build_multiple_trees(self, K, dist):
+        for go in self.goals:
+            T = Tree(go.pos)
+
+            for n in range(self.n_obstacles):
+                valid = False
+                c_rand = go.pos.copy()
+                size = (10,10)
+
+            while not valid:
+                c_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+                valid = True
+                if np.linalg.norm(c_rand - root) < 20:
+                    valid = False
+                    continue
+                
+                for g in self.goals:
+                    if np.linalg.norm(c_rand - g.pos) < 20 and g.pos[0] != go.pos[0]:
+                        valid = False
+                        continue
+
+            # while np.linalg.norm(c_rand - root) < 10:
+            #     c_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+
+            obstacle = Obstacle(c_rand, size)
+            self.obstacles.append(obstacle)
+
+            for k in range(K):
+                goal_pos, is_random = self.roulette.spin()
+                q_rand = root.copy()
+
+                if is_random or goal_pos[0] == go.pos[0]:
+                    q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+                else:
+                    q_rand = goal_pos
+                    # while np.linalg.norm(q_rand - goal_pos) > 15:
+                    #     q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+
+                q_near = self.nearest_vertex(q_rand, T)
+                q_new = self.new_conf(q_near, q_rand, dist)
+                
+                collision = False
+
+                for obstacle in self.obstacles:
+                    if obstacle.check_collision(q_new):
+                        collision = True
+                        break 
+
+                if not collision:
+                    T.add_vertex(q_new)
+                    T.add_edge(q_near, q_new)
+
+            self.trees.append(T)
+
+
     def nearest_vertex(self, vertex : np.ndarray, tree) -> np.ndarray:
         d = np.inf
         v_near = np.array([])
@@ -104,6 +159,9 @@ app = QtWidgets.QApplication([])
 plot = Visualization()
 plot.show()
 RRT = RRT(10)
-RRT.build_RRT(root, 100, 2)
-plot.update(RRT.trees[0], RRT.obstacles, RRT.goals)
+# RRT.build_RRT(root, 100, 2)
+RRT.build_multiple_trees(100, 2)
+
+plot.update(RRT.trees, RRT.obstacles, RRT.goals)    
+
 app.exec()
