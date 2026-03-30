@@ -43,7 +43,7 @@ class RRT:
             collision = False
 
             for obstacle in self.obstacles:
-                if obstacle.check_collision(q_new):
+                if obstacle.check_collision(q_near, q_new):
                     collision = True
                     break 
 
@@ -74,9 +74,9 @@ class RRT:
                 collision = False
 
                 for obstacle in self.obstacles:
-                    if obstacle.check_collision(q_new):
+                    if obstacle.check_collision(q_near, q_new):
                         collision = True
-                        break 
+                        break
 
                 if not collision:
                     T.add_vertex(q_new)
@@ -138,8 +138,8 @@ app = QtWidgets.QApplication([])
 plot = Visualization()
 plot.show()
 RRT = RRT(10)
-# RRT.build_RRT(root, 100, 2)
 RRT.build_obstacles()
+# RRT.build_RRT(root, 100, 2)
 RRT.build_multiple_trees(100, 2)
 
 plot.update(RRT.trees, RRT.obstacles, RRT.goals)    
