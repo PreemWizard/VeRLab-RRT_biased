@@ -26,29 +26,6 @@ class RRT:
     def build_RRT(self, root : np.ndarray, K, dist):
         T = Tree(root)
 
-        for n in range(self.n_obstacles):
-            valid = False
-            c_rand = root.copy()
-            size = (10,10)
-
-            while not valid:
-                c_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
-                valid = True
-                if np.linalg.norm(c_rand - root) < 20:
-                    valid = False
-                    continue
-                
-                for g in self.goals:
-                    if np.linalg.norm(c_rand - g.pos) < 20:
-                        valid = False
-                        continue
-
-            # while np.linalg.norm(c_rand - root) < 10:
-            #     c_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
-
-            obstacle = Obstacle(c_rand, size)
-            self.obstacles.append(obstacle)
-
         for k in range(K):
             goal_pos, is_random = self.roulette.spin()
             q_rand = root.copy()
@@ -80,29 +57,6 @@ class RRT:
         for go in self.goals:
             T = Tree(go.pos)
 
-            for n in range(self.n_obstacles):
-                valid = False
-                c_rand = go.pos.copy()
-                size = (10,10)
-
-            while not valid:
-                c_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
-                valid = True
-                if np.linalg.norm(c_rand - root) < 20:
-                    valid = False
-                    continue
-                
-                for g in self.goals:
-                    if np.linalg.norm(c_rand - g.pos) < 20 and g.pos[0] != go.pos[0]:
-                        valid = False
-                        continue
-
-            # while np.linalg.norm(c_rand - root) < 10:
-            #     c_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
-
-            obstacle = Obstacle(c_rand, size)
-            self.obstacles.append(obstacle)
-
             for k in range(K):
                 goal_pos, is_random = self.roulette.spin()
                 q_rand = root.copy()
@@ -129,6 +83,31 @@ class RRT:
                     T.add_edge(q_near, q_new)
 
             self.trees.append(T)
+
+    def build_obstacles(self):
+        for n in range(self.n_obstacles):
+                valid = False
+                go = rd.choice(self.goals)
+                c_rand = go.pos.copy()
+                size = (10,10)
+
+                while not valid:
+                    c_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+                    valid = True
+                    if np.linalg.norm(c_rand - go.pos) < 20:
+                        valid = False
+                        continue
+                    
+                    for g in self.goals:
+                        if np.linalg.norm(c_rand - g.pos) < 20 and g.pos[0] != go.pos[0]:
+                            valid = False
+                            continue
+
+                # while np.linalg.norm(c_rand - root) < 10:
+                #     c_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+
+                obstacle = Obstacle(c_rand, size)
+                self.obstacles.append(obstacle)
 
 
     def nearest_vertex(self, vertex : np.ndarray, tree) -> np.ndarray:
@@ -160,6 +139,7 @@ plot = Visualization()
 plot.show()
 RRT = RRT(10)
 # RRT.build_RRT(root, 100, 2)
+RRT.build_obstacles()
 RRT.build_multiple_trees(100, 2)
 
 plot.update(RRT.trees, RRT.obstacles, RRT.goals)    
