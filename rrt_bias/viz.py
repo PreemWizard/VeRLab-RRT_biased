@@ -17,15 +17,23 @@ class Visualization(QtWidgets.QMainWindow):
 		self.graph.addItem(self.obstacles_plot)
 
 
-	def update(self, tree, obstacles, goals):
+	def update(self, trees, obstacles, goals):
 		x_edge = []
 		y_edge = []
 
-		for e in tree.edges:
-			x_edge += [e[0][0], e[1][0], np.nan]
-			y_edge += [e[0][1], e[1][1], np.nan]
+		x_vert = []
+		y_vert = []
+		
+		for t in trees:
+			for e in t.edges:
+				x_edge += [e[0][0], e[1][0], np.nan]
+				y_edge += [e[0][1], e[1][1], np.nan]
 
-		self.tree_vertexes.setData([v[0] for v in tree.vertexes], [v[1] for v in tree.vertexes])
+			for v in t.vertexes:
+				x_vert += [v[0]]
+				y_vert += [v[1]]
+			
+		self.tree_vertexes.setData(x_vert, y_vert)
 		self.tree_edges.setData(x_edge, y_edge)
 
 		for obs in obstacles:
