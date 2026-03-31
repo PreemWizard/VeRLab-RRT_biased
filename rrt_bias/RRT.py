@@ -9,6 +9,11 @@ from obstacle import Obstacle
 from bias_roulett import Roulette
 from goal import Goal
 
+#Anotacoes:
+
+#Expandi, temrinei, verificar se algum vertice da arvore atual  e conectavel com outro vertice das outras arvores. Se conectar, tirar os goals das arvores das roletas que forma concecatadas
+#Expandir a arvore para maximizar a recompensa dentro do budget sem ter quer conectar todas as arvores
+
 class RRT:
     def __init__(self, n_obstacles: int):
         self.trees = []
@@ -21,13 +26,13 @@ class RRT:
         goal4 = Goal(np.array([0, 50]), 10)
         self.goals = [goal1, goal2, goal3, goal4]
 
-        self.roulette = Roulette(self.goals)
+        #self.roulette = Roulette(self.goals)
 
     def build_RRT(self, root : np.ndarray, K, dist):
-        T = Tree(root)
+        T = Tree(root, Roulette(self.goals))
 
         for k in range(K):
-            goal_pos, is_random = self.roulette.spin()
+            goal_pos, is_random = T.roulette.spin()
             q_rand = root.copy()
 
             if is_random:
@@ -55,13 +60,14 @@ class RRT:
 
     def build_multiple_trees(self, K, dist):
         for go in self.goals:
-            T = Tree(go.pos)
+            t_goals = [g for g in self.goals if g != go]
+            T = Tree(go.pos, Roulette(t_goals))
 
             for k in range(K):
-                goal_pos, is_random = self.roulette.spin()
+                goal_pos, is_random = T.roulette.spin()
                 q_rand = root.copy()
 
-                if is_random or goal_pos[0] == go.pos[0]:
+                if is_random:
                     q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
                 else:
                     q_rand = goal_pos
@@ -131,6 +137,42 @@ class RRT:
         v_new = np.array(tree_vertex + (distance * v_unit))
 
         return v_new
+    
+    def connect_all_into_graph(self, K_dist):
+        # Criamos uma estrutura para segurar o grafo global
+        # Pode ser uma instância da classe Tree ou uma nova classe Graph
+        global_graph = Tree(None, None) # Raiz arbitrária
+        global_graph.vertexes = []
+        global_graph.edges = []
+
+        # 1. Copia todos os dados de todas as árvores para o grafo global
+        for T in self.trees:
+            global_graph.vertexes.extend(T.vertexes)
+            global_graph.edges.extend(T.edges)
+
+        # 2. Tenta conectar árvores diferentes
+        # Comparamos cada árvore com as próximas na lista
+        for i in range(len(self.trees)):
+            for j in range(i + 1, len(self.trees)):
+                tree_a = self.trees[i]
+                tree_b = self.trees[j]
+
+                for v_a in tree_a.vertexes:
+                    for v_b in tree_b.vertexes:
+                        dist = np.linalg.norm(v_a - v_b)
+                        
+                        if dist <= K_dist:
+                            # Checa colisão antes de conectar
+                            collision = False
+                            for obs in self.obstacles:
+                                if obs.check_collision(v_a, v_b):
+                                    collision = True
+                                    break
+                            
+                            if not collision:
+                                global_graph.add_edge(v_a, v_b)
+                                # Opcional: break se quiser apenas uma conexão entre árvores
+        return global_graph
 
 root = np.array([50, 50])
 
@@ -139,9 +181,11 @@ plot = Visualization()
 plot.show()
 RRT = RRT(10)
 RRT.build_obstacles()
-# RRT.build_RRT(root, 100, 2)
-RRT.build_multiple_trees(100, 2)
+#RRT.build_RRT(root, 200, 2)
+RRT.build_multiple_trees(50, 2)
 
-plot.update(RRT.trees, RRT.obstacles, RRT.goals)    
+global_graph = RRT.connect_all_into_graph(2)
+
+plot.update(RRT.trees, RRT.obstacles, RRT.goals, global_graph)    
 
 app.exec()
