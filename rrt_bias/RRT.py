@@ -11,7 +11,7 @@ from goal import Goal
 
 #Anotacoes:
 
-#Expandi, temrinei, verificar se algum vertice da arvore atual  e conectavel com outro vertice das outras arvores. Se conectar, tirar os goals das arvores das roletas que forma concecatadas
+#Fazer isso -> Expandi, temrinei, verificar se algum vertice da arvore atual  e conectavel com outro vertice das outras arvores. Se conectar, tirar os goals das arvores das roletas que forma concecatadas
 #Expandir a arvore para maximizar a recompensa dentro do budget sem ter quer conectar todas as arvores
 
 class RRT:
