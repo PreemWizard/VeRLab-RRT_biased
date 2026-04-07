@@ -15,5 +15,5 @@ class Tree:
     def add_edge(self, v_near : np.ndarray, v_new : np.ndarray):
         self.edges.append(np.array([v_near, v_new]))
 
-    def add_connected_tre(self, tree_root : list):
-        self.tree_connected_to.append(tree_root)
+    def add_connected_tree(self, tree_root : np.ndarray):
+        self.tree_connected_to.append(tuple(tree_root))
