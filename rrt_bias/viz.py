@@ -1,5 +1,5 @@
 import pyqtgraph as pg
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui, QtCore
 import numpy as np
 
 class Visualization(QtWidgets.QMainWindow):
@@ -13,20 +13,48 @@ class Visualization(QtWidgets.QMainWindow):
 		self.tree_vertexes = self.graph.plot([], [], pen=None, symbol='o')
 		self.tree_edges = self.graph.plot([], [], pen='g')
 
+		self.graph_vertexes = self.graph.plot([], [], pen=None, symbol='o')
+		self.graph_edges = self.graph.plot([], [], pen=pg.mkPen(color='y', width=1, style=QtCore.Qt.DashLine))
+
 		self.obstacles_plot = pg.ScatterPlotItem(pen='r', brush='r', symbol='s')
 		self.graph.addItem(self.obstacles_plot)
 
 
-	def update(self, tree, obstacles, goals):
+	def update(self, trees, obstacles, goals):
 		x_edge = []
 		y_edge = []
 
-		for e in tree.edges:
-			x_edge += [e[0][0], e[1][0], np.nan]
-			y_edge += [e[0][1], e[1][1], np.nan]
+		x_vert = []
+		y_vert = []
+		
+		for t in trees:
+			for e in t.edges:
+				x_edge += [e[0][0], e[1][0], np.nan]
+				y_edge += [e[0][1], e[1][1], np.nan]
 
-		self.tree_vertexes.setData([v[0] for v in tree.vertexes], [v[1] for v in tree.vertexes])
+			for v in t.vertexes:
+				x_vert += [v[0]]
+				y_vert += [v[1]]
+			
+		self.tree_vertexes.setData(x_vert, y_vert)
 		self.tree_edges.setData(x_edge, y_edge)
+
+		# global_x_edge = []
+		# global_y_edge = []
+
+		# global_x_vert = []
+		# global_y_vert = []
+
+		# for e in global_graph.edges:
+		# 	global_x_edge += [e[0][0], e[1][0], np.nan]
+		# 	global_y_edge += [e[0][1], e[1][1], np.nan]
+
+		# for v in global_graph.vertexes:
+		# 	global_x_vert += [v[0]]
+		# 	global_y_vert += [v[1]]
+			
+		# self.graph_vertexes.setData(global_x_vert, global_y_vert)
+		# self.graph_edges.setData(global_x_edge, global_y_edge)
 
 		for obs in obstacles:
             # Calculamos os cantos matemáticos reais
@@ -49,11 +77,16 @@ class Visualization(QtWidgets.QMainWindow):
 			
 			# Cria a caixinha roxa vazia
 			goal_rect = QtWidgets.QGraphicsRectItem(gx0, gy0, w_g, h_g)
-			goal_rect.setPen(pg.mkPen(color=(128, 0, 128), width=2)) # Roxo
+			goal_rect.setPen(pg.mkPen(color=(255, 255, 255), width=2)) # Roxo
 			goal_rect.setBrush(pg.mkBrush(None)) # Fundo vazio/transparente
 			self.graph.addItem(goal_rect)
 			
 			# Adiciona o valor do Goal (Recompensa) dentro da caixa
-			text = pg.TextItem(text=str(goal.reward), color=(128, 0, 128), anchor=(0.5, 0.5))
+			
+			text = pg.TextItem(text=str(goal.reward), color=(255, 255, 255), anchor=(0.5, 0.5))
+			font = QtGui.QFont()
+			font.setPixelSize(18) # PixelSize é mais estável que PointSize em gráficos 2D
+			# font.setBold(True)  # Opcional: Deixar em negrito ajuda na leitura
+			text.setFont(font)
 			text.setPos(float(goal.pos[0]), float(goal.pos[1]))
 			self.graph.addItem(text)
