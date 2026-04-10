@@ -14,6 +14,7 @@ from goal import Goal
 
 #Expandi, temrinei, verificar se algum vertice da arvore atual  e conectavel com outro vertice das outras arvores. Se conectar, tirar os goals das arvores das roletas que forma concecatadas
 #Expandir a arvore para maximizar a recompensa dentro do budget sem ter quer conectar todas as arvores
+#Criar um ponto de partida e um ponto de chegada (Pode ser o mesmo ou diferente)
 
 class RRT:
     def __init__(self, n_obstacles: int):
@@ -25,7 +26,29 @@ class RRT:
         goal2 = Goal(np.array([50, 0]), 80)
         goal3 = Goal(np.array([100, 50]), 40)
         goal4 = Goal(np.array([0, 50]), 10)
-        self.goals = [goal1, goal2, goal3, goal4]
+        goal5 = Goal(np.array([0, 0]), 100)
+        goal6 = Goal(np.array([0, 100]), 30)
+        goal7 = Goal(np.array([100, 100]), 110)
+        goal8 = Goal(np.array([100, 0]), 20)
+        self.goals = [goal1, goal2, goal3, goal4, goal5, goal6, goal7, goal8]
+
+        square1 = Obstacle(np.array([25, 25]), np.array([20, 20]))
+        square2 = Obstacle(np.array([25, 75]), np.array([20, 20]))
+        square3 = Obstacle(np.array([75, 25]), np.array([20, 20]))
+        square4 = Obstacle(np.array([75, 75]), np.array([20, 20]))
+        square5 = Obstacle(np.array([50, 50]), np.array([20, 20]))
+
+        # square6 = Obstacle(np.array([0, 25]), np.array([20, 20]))
+        # square7 = Obstacle(np.array([0, 75]), np.array([20, 20]))
+        # square8 = Obstacle(np.array([25, 0]), np.array([20, 20]))
+        # square9 = Obstacle(np.array([25, 100]), np.array([20, 20]))
+        # square10 = Obstacle(np.array([75, 100]), np.array([20, 20]))
+        # square11 = Obstacle(np.array([75, 0]), np.array([20, 20]))
+        # square12 = Obstacle(np.array([100, 25]), np.array([20, 20]))
+        # square13 = Obstacle(np.array([100, 75]), np.array([20, 20]))
+
+        #square6, square7, square8, square9, square10, square11, square12, square13
+        self.obstacles = [square1, square2, square3, square4, square5]
 
         #self.roulette = Roulette(self.goals)
 
@@ -250,7 +273,7 @@ app = QtWidgets.QApplication([])
 plot = Visualization()
 plot.show()
 RRT = RRT(10)
-RRT.build_obstacles()
+#RRT.build_obstacles()
 
 #RRT.build_RRT(root, 200, 2)
 #RRT.build_multiple_trees(100, 2)
@@ -259,7 +282,7 @@ RRT.build_obstacles()
 
 RRT.prepare_trees()
 
-k_max = 300
+k_max = 150
 k_atual = 0
 all_conected = False
 
@@ -280,7 +303,7 @@ def loop_de_atualizacao():
 
 timer = QTimer()
 timer.timeout.connect(loop_de_atualizacao)
-timer.start(100)
+timer.start(200)
 
 #plot.update(RRT.trees, RRT.obstacles, RRT.goals)    
 
