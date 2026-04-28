@@ -20,7 +20,7 @@ class Visualization(QtWidgets.QMainWindow):
 		self.graph.addItem(self.obstacles_plot)
 
 
-	def update(self, trees, obstacles, goals, global_graph):
+	def update(self, trees, obstacles, goals):
 		x_edge = []
 		y_edge = []
 
@@ -39,22 +39,22 @@ class Visualization(QtWidgets.QMainWindow):
 		self.tree_vertexes.setData(x_vert, y_vert)
 		self.tree_edges.setData(x_edge, y_edge)
 
-		global_x_edge = []
-		global_y_edge = []
+		# global_x_edge = []
+		# global_y_edge = []
 
-		global_x_vert = []
-		global_y_vert = []
+		# global_x_vert = []
+		# global_y_vert = []
 
-		for e in global_graph.edges:
-			global_x_edge += [e[0][0], e[1][0], np.nan]
-			global_y_edge += [e[0][1], e[1][1], np.nan]
+		# for e in global_graph.edges:
+		# 	global_x_edge += [e[0][0], e[1][0], np.nan]
+		# 	global_y_edge += [e[0][1], e[1][1], np.nan]
 
-		for v in global_graph.vertexes:
-			global_x_vert += [v[0]]
-			global_y_vert += [v[1]]
+		# for v in global_graph.vertexes:
+		# 	global_x_vert += [v[0]]
+		# 	global_y_vert += [v[1]]
 			
-		self.graph_vertexes.setData(global_x_vert, global_y_vert)
-		self.graph_edges.setData(global_x_edge, global_y_edge)
+		# self.graph_vertexes.setData(global_x_vert, global_y_vert)
+		# self.graph_edges.setData(global_x_edge, global_y_edge)
 
 		for obs in obstacles:
             # Calculamos os cantos matemáticos reais
