@@ -5,7 +5,11 @@ class Roulette:
     def __init__(self, real_goals: list[Goal]):
         self.real_goals = real_goals
         
+<<<<<<< HEAD
         self.prob_random = 0.0
+=======
+        self.prob_random = 0.5
+>>>>>>> 5cebe3017828c79cde23f1beb8b0434ff9c98be5
         self.empty = False
         
 
