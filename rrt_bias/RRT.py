@@ -16,6 +16,8 @@ from goal import Goal
 #Expandir a arvore para maximizar a recompensa dentro do budget sem ter quer conectar todas as arvores
 #Criar um ponto de partida e um ponto de chegada (Pode ser o mesmo ou diferente)
 
+#Rodar o phsical, tornar o bias dinamico (remover a fatia do bias da roleta e colocar na aleatoriedade), colocar os pontos do nosso simulador no simulador do phisical, usar o planejador de caminhos do phisical no nosso simulador 
+
 class RRT:
     def __init__(self, n_obstacles: int):
         self.trees = []
@@ -119,9 +121,12 @@ class RRT:
             for obstacle in self.obstacles:
                 if obstacle.check_collision(q_near, q_new):
                     collision = True
+                    T.roulette.prob_random += 0.1
                     break
 
             if not collision:
+                if T.roulette.prob_random > 0.0:
+                    T.roulette.prob_random -= 0.1
                 T.add_vertex(q_new)
                 T.add_edge(q_near, q_new)
 
