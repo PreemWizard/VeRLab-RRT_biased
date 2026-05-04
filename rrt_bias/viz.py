@@ -83,7 +83,11 @@ class Visualization(QtWidgets.QMainWindow):
 			
 			# Adiciona o valor do Goal (Recompensa) dentro da caixa
 			
-			text = pg.TextItem(text=str(goal.reward), color=(255, 255, 255), anchor=(0.5, 0.5))
+			if goal == goals[0]:
+				text = pg.TextItem(text="START", color=(255, 255, 255), anchor=(0.5, 0.5))
+			else:
+				text = pg.TextItem(text=str(goal.reward), color=(255, 255, 255), anchor=(0.5, 0.5))
+			
 			font = QtGui.QFont()
 			font.setPixelSize(18) # PixelSize é mais estável que PointSize em gráficos 2D
 			# font.setBold(True)  # Opcional: Deixar em negrito ajuda na leitura
