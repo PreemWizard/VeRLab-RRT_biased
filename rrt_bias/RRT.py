@@ -16,11 +16,15 @@ from goal import Goal
 #Expandir a arvore para maximizar a recompensa dentro do budget sem ter quer conectar todas as arvores
 #Criar um ponto de partida e um ponto de chegada (Pode ser o mesmo ou diferente)
 
+#Rodar o phsical, tornar o bias dinamico (remover a fatia do bias da roleta e colocar na aleatoriedade), colocar os pontos do nosso simulador no simulador do phisical, usar o planejador de caminhos do phisical no nosso simulador 
+
 class RRT:
     def __init__(self, n_obstacles: int):
         self.trees = []
         self.n_obstacles = n_obstacles
         self.obstacles = []
+
+        start_goal = Goal(np.array([20, 120]), 0)
         
         goal1 = Goal(np.array([50, 100]), 50)
         goal2 = Goal(np.array([50, 0]), 80)
@@ -30,7 +34,7 @@ class RRT:
         goal6 = Goal(np.array([0, 100]), 30)
         goal7 = Goal(np.array([100, 100]), 110)
         goal8 = Goal(np.array([100, 0]), 20)
-        self.goals = [goal1, goal2, goal3, goal4, goal5, goal6, goal7, goal8]
+        self.goals = [start_goal, goal1, goal2, goal3, goal4, goal5, goal6, goal7, goal8]
 
         square1 = Obstacle(np.array([25, 25]), np.array([20, 20]))
         square2 = Obstacle(np.array([25, 75]), np.array([20, 20]))
@@ -146,8 +150,15 @@ class RRT:
                         T.add_edge(vert_other, q_new)
                         T.add_connected_tree(other_tree.root)
                         other_tree.add_connected_tree(tuple(T.root))
-                        T.roulette.prob_random += 2 * T.roulette.prob_random
-                        other_tree.roulette.prob_random += 2 * other_tree.roulette.prob_random
+                        
+                        for t in other_tree.tree_connected_to:
+                            T.add_connected_tree(t)
+
+                        for t in T.tree_connected_to:
+                            other_tree.add_connected_tree(t)
+
+                        T.roulette.prob_random += 0.5 * T.roulette.prob_random
+                        other_tree.roulette.prob_random += 0.5 * other_tree.roulette.prob_random
                         #Aqui podemos adicionar a aresta a outra arvore tambem
                         print(f"Ponte criada entre a árvore {T.root} e {other_tree.root}")
         return False
@@ -286,7 +297,7 @@ RRT = RRT(10)
 
 RRT.prepare_trees()
 
-k_max = 150
+k_max = 200
 k_atual = 0
 all_conected = False
 
