@@ -148,20 +148,27 @@ class RRT:
                     if not bridge_collision:
 
                         T.add_edge(vert_other, q_new)
-                        T.add_connected_tree(other_tree.root)
+                        T.add_connected_tree(tuple(other_tree.root))
                         other_tree.add_connected_tree(tuple(T.root))
                         T.roulette.prob_random += 0.5 * T.roulette.prob_random
                         other_tree.roulette.prob_random += 0.5 * other_tree.roulette.prob_random
                         
-                        for t in other_tree.tree_connected_to:
-                            if t not in T.tree_connected_to:
-                                T.add_connected_tree(t)
+                        for t in other_tree.tree_connected_to:    
+                            if tuple(t) not in T.tree_connected_to:
+                                T.add_connected_tree(tuple(t))
                                 T.roulette.prob_random += 0.5 * T.roulette.prob_random
 
                         for t in T.tree_connected_to:
-                            if t not in other_tree.tree_connected_to:
-                                other_tree.add_connected_tree(t)
+                            if tuple(t) not in other_tree.tree_connected_to:
+                                other_tree.add_connected_tree(tuple(t))
                                 other_tree.roulette.prob_random += 0.5 * other_tree.roulette.prob_random
+
+                        for tr in self.trees:
+                            if tuple(tr.root) in other_tree.tree_connected_to and tuple(T.root) not in tr.tree_connected_to:
+                                tr.add_connected_tree(tuple(T.root))
+
+                            if tuple(tr.root) in T.tree_connected_to and tuple(other_tree.root) not in tr.tree_connected_to:
+                                tr.add_connected_tree(tuple(other_tree.root))
 
                         #Aqui podemos adicionar a aresta a outra arvore tambem
                         print(f"Ponte criada entre a árvore {T.root} e {other_tree.root}")
@@ -301,7 +308,7 @@ RRT = RRT(10)
 
 RRT.prepare_trees()
 
-k_max = 200
+k_max = 250
 k_atual = 0
 all_conected = False
 
