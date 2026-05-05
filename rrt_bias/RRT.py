@@ -150,15 +150,19 @@ class RRT:
                         T.add_edge(vert_other, q_new)
                         T.add_connected_tree(other_tree.root)
                         other_tree.add_connected_tree(tuple(T.root))
-                        
-                        for t in other_tree.tree_connected_to:
-                            T.add_connected_tree(t)
-
-                        for t in T.tree_connected_to:
-                            other_tree.add_connected_tree(t)
-
                         T.roulette.prob_random += 0.5 * T.roulette.prob_random
                         other_tree.roulette.prob_random += 0.5 * other_tree.roulette.prob_random
+                        
+                        for t in other_tree.tree_connected_to:
+                            if t not in T.tree_connected_to:
+                                T.add_connected_tree(t)
+                                T.roulette.prob_random += 0.5 * T.roulette.prob_random
+
+                        for t in T.tree_connected_to:
+                            if t not in other_tree.tree_connected_to:
+                                other_tree.add_connected_tree(t)
+                                other_tree.roulette.prob_random += 0.5 * other_tree.roulette.prob_random
+
                         #Aqui podemos adicionar a aresta a outra arvore tambem
                         print(f"Ponte criada entre a árvore {T.root} e {other_tree.root}")
         return False
