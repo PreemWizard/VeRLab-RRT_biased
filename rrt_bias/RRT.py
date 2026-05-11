@@ -24,23 +24,23 @@ class RRT:
         self.n_obstacles = n_obstacles
         self.obstacles = []
 
-        start_goal = Goal(np.array([20, 120]), 0)
+        start_goal = Goal(np.array([20, 120, 0]), 0)
         
-        goal1 = Goal(np.array([50, 100]), 50)
-        goal2 = Goal(np.array([50, 0]), 80)
-        goal3 = Goal(np.array([100, 50]), 40)
-        goal4 = Goal(np.array([0, 50]), 10)
-        goal5 = Goal(np.array([0, 0]), 100)
-        goal6 = Goal(np.array([0, 100]), 30)
-        goal7 = Goal(np.array([100, 100]), 110)
-        goal8 = Goal(np.array([100, 0]), 20)
+        goal1 = Goal(np.array([50, 100, 0]), 50)
+        goal2 = Goal(np.array([50, 0, 0]), 80)
+        goal3 = Goal(np.array([100, 50, 0]), 40)
+        goal4 = Goal(np.array([0, 50, 0]), 10)
+        goal5 = Goal(np.array([0, 0, 0]), 100)
+        goal6 = Goal(np.array([0, 100, 0]), 30)
+        goal7 = Goal(np.array([100, 100, 0]), 110)
+        goal8 = Goal(np.array([100, 0, 0]), 20)
         self.goals = [start_goal, goal1, goal2, goal3, goal4, goal5, goal6, goal7, goal8]
 
-        square1 = Obstacle(np.array([25, 25]), np.array([20, 20]))
-        square2 = Obstacle(np.array([25, 75]), np.array([20, 20]))
-        square3 = Obstacle(np.array([75, 25]), np.array([20, 20]))
-        square4 = Obstacle(np.array([75, 75]), np.array([20, 20]))
-        square5 = Obstacle(np.array([50, 50]), np.array([20, 20]))
+        square1 = Obstacle(np.array([25, 25, 0]), np.array([5, 5, 5]))
+        square2 = Obstacle(np.array([25, 75, 0]), np.array([5, 5, 5]))
+        square3 = Obstacle(np.array([75, 25, 0]), np.array([5, 5, 5]))
+        square4 = Obstacle(np.array([75, 75, 0]), np.array([5, 5, 5]))
+        square5 = Obstacle(np.array([50, 50, 0]), np.array([5, 5, 5]))
 
         # square6 = Obstacle(np.array([0, 25]), np.array([20, 20]))
         # square7 = Obstacle(np.array([0, 75]), np.array([20, 20]))
@@ -64,7 +64,7 @@ class RRT:
             q_rand = root.copy()
 
             if is_random:
-                q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+                q_rand = np.array([rd.randrange(-100, 100), rd.randrange(-100, 100), rd.randrange(-100, 100)])
             else:
                 q_rand = goal_pos
                 # while np.linalg.norm(q_rand - goal_pos) > 15:
@@ -112,7 +112,7 @@ class RRT:
                 continue
 
             if is_random:
-                q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+                q_rand = np.array([rd.randrange(-100, 100), rd.randrange(-100, 100), rd.randrange(-100, 100)])
             else:
                 q_rand = goal_pos
 
@@ -148,27 +148,20 @@ class RRT:
                     if not bridge_collision:
 
                         T.add_edge(vert_other, q_new)
-                        T.add_connected_tree(tuple(other_tree.root))
+                        T.add_connected_tree(other_tree.root)
                         other_tree.add_connected_tree(tuple(T.root))
                         T.roulette.prob_random += 0.5 * T.roulette.prob_random
                         other_tree.roulette.prob_random += 0.5 * other_tree.roulette.prob_random
                         
-                        for t in other_tree.tree_connected_to:    
-                            if tuple(t) not in T.tree_connected_to:
-                                T.add_connected_tree(tuple(t))
+                        for t in other_tree.tree_connected_to:
+                            if t not in T.tree_connected_to:
+                                T.add_connected_tree(t)
                                 T.roulette.prob_random += 0.5 * T.roulette.prob_random
 
                         for t in T.tree_connected_to:
-                            if tuple(t) not in other_tree.tree_connected_to:
-                                other_tree.add_connected_tree(tuple(t))
+                            if t not in other_tree.tree_connected_to:
+                                other_tree.add_connected_tree(t)
                                 other_tree.roulette.prob_random += 0.5 * other_tree.roulette.prob_random
-
-                        for tr in self.trees:
-                            if tuple(tr.root) in other_tree.tree_connected_to and tuple(T.root) not in tr.tree_connected_to:
-                                tr.add_connected_tree(tuple(T.root))
-
-                            if tuple(tr.root) in T.tree_connected_to and tuple(other_tree.root) not in tr.tree_connected_to:
-                                tr.add_connected_tree(tuple(other_tree.root))
 
                         #Aqui podemos adicionar a aresta a outra arvore tambem
                         print(f"Ponte criada entre a árvore {T.root} e {other_tree.root}")
@@ -189,7 +182,7 @@ class RRT:
                 q_rand = T.root.copy()
 
                 if is_random:
-                    q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+                    q_rand = np.array([rd.randrange(-100, 100), rd.randrange(-100, 100), rd.randrange(-100, 100)])
                 else:
                     q_rand = goal_pos
                     # while np.linalg.norm(q_rand - goal_pos) > 15:
@@ -214,10 +207,10 @@ class RRT:
                 valid = False
                 go = rd.choice(self.goals)
                 c_rand = go.pos.copy()
-                size = (10,10)
+                size = [5,5,5]
 
                 while not valid:
-                    c_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+                    c_rand = np.array([rd.randrange(-100, 100), rd.randrange(-100, 100), rd.randrange(-100, 100)])
                     valid = True
                     if np.linalg.norm(c_rand - go.pos) < 20:
                         valid = False
@@ -293,11 +286,8 @@ class RRT:
     #                             # Opcional: break se quiser apenas uma conexão entre árvores
     #     return global_graph
 
-root = np.array([50, 50])
+root = np.array([0, 0, 0])
 
-app = QtWidgets.QApplication([])
-plot = Visualization()
-plot.show()
 RRT = RRT(10)
 #RRT.build_obstacles()
 
@@ -308,7 +298,12 @@ RRT = RRT(10)
 
 RRT.prepare_trees()
 
-k_max = 250
+app = QtWidgets.QApplication([])
+plot = Visualization(RRT.obstacles, RRT.goals)
+plot.show()
+plot.showMaximized()
+
+k_max = 200
 k_atual = 0
 all_conected = False
 
@@ -319,7 +314,7 @@ def loop_de_atualizacao():
         
         all_conected = RRT.expand_step(2)
         
-        plot.update(RRT.trees, RRT.obstacles, RRT.goals)
+        plot.update(RRT.trees)
         
         k_atual += 1
         print(f"Iteração: {k_atual}/{k_max}")
