@@ -56,35 +56,35 @@ class RRT:
 
         #self.roulette = Roulette(self.goals)
 
-    def build_RRT(self, root : np.ndarray, K, dist):
-        T = Tree(root, Roulette(self.goals))
+    # def build_RRT(self, root : np.ndarray, K, dist):
+    #     T = Tree(root, Roulette(self.goals))
 
-        for k in range(K):
-            goal_pos, is_random = T.roulette.spin()
-            q_rand = root.copy()
+    #     for k in range(K):
+    #         goal_pos, is_random = T.roulette.spin()
+    #         q_rand = root.copy()
 
-            if is_random:
-                q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
-            else:
-                q_rand = goal_pos
-                # while np.linalg.norm(q_rand - goal_pos) > 15:
-                #     q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+    #         if is_random:
+    #             q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+    #         else:
+    #             q_rand = goal_pos
+    #             # while np.linalg.norm(q_rand - goal_pos) > 15:
+    #             #     q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
 
-            q_near = self.nearest_vertex(q_rand, T)
-            q_new = self.new_conf(q_near, q_rand, dist)
+    #         q_near = self.nearest_vertex(q_rand, T)
+    #         q_new = self.new_conf(q_near, q_rand, dist)
             
-            collision = False
+    #         collision = False
 
-            for obstacle in self.obstacles:
-                if obstacle.check_collision(q_near, q_new):
-                    collision = True
-                    break 
+    #         for obstacle in self.obstacles:
+    #             if obstacle.check_collision(q_near, q_new):
+    #                 collision = True
+    #                 break 
 
-            if not collision:
-                T.add_vertex(q_new)
-                T.add_edge(q_near, q_new)
+    #         if not collision:
+    #             T.add_vertex(q_new)
+    #             T.add_edge(q_near, q_new)
 
-        self.trees.append(T)
+    #     self.trees.append(T)
 
     def prepare_trees(self):
         """Inicializa as raízes das árvores antes de começar a expansão."""
@@ -152,6 +152,8 @@ class RRT:
                         other_tree.add_connected_tree(tuple(T.root))
                         T.roulette.prob_random += 0.5 * T.roulette.prob_random
                         other_tree.roulette.prob_random += 0.5 * other_tree.roulette.prob_random
+
+                        #Incremento dinamico da probabilidade de expansao aleatoria da arvore da iteracao e da arvore a ser conectada
                         
                         for t in other_tree.tree_connected_to:    
                             if tuple(t) not in T.tree_connected_to:
@@ -162,6 +164,9 @@ class RRT:
                             if tuple(t) not in other_tree.tree_connected_to:
                                 other_tree.add_connected_tree(tuple(t))
                                 other_tree.roulette.prob_random += 0.5 * other_tree.roulette.prob_random
+
+                        #Adiciona a arvore conectada em uma lista de arvores conectadas e para de expandir na direcao delas
+                        #Quando a arvore conecta com a outra, elas mesclam a lista de conexao de cada uma com a outra
 
                         for tr in self.trees:
                             if tuple(tr.root) in other_tree.tree_connected_to and tuple(T.root) not in tr.tree_connected_to:
@@ -176,38 +181,38 @@ class RRT:
 
 
 
-    def build_multiple_trees(self, K, dist):
-        for go in self.goals:
-            t_goals = [g for g in self.goals if g != go]
-            T = Tree(go.pos, Roulette(t_goals))
+    # def build_multiple_trees(self, K, dist):
+    #     for go in self.goals:
+    #         t_goals = [g for g in self.goals if g != go]
+    #         T = Tree(go.pos, Roulette(t_goals))
             
-            self.trees.append(T)
+    #         self.trees.append(T)
         
-        for k in range(K):
-            for T in self.trees:
-                goal_pos, is_random = T.roulette.spin()
-                q_rand = T.root.copy()
+    #     for k in range(K):
+    #         for T in self.trees:
+    #             goal_pos, is_random = T.roulette.spin()
+    #             q_rand = T.root.copy()
 
-                if is_random:
-                    q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
-                else:
-                    q_rand = goal_pos
-                    # while np.linalg.norm(q_rand - goal_pos) > 15:
-                    #     q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+    #             if is_random:
+    #                 q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
+    #             else:
+    #                 q_rand = goal_pos
+    #                 # while np.linalg.norm(q_rand - goal_pos) > 15:
+    #                 #     q_rand = np.array([rd.randrange(0, 100), rd.randrange(0, 100)])
 
-                q_near = self.nearest_vertex(q_rand, T)
-                q_new = self.new_conf(q_near, q_rand, dist)
+    #             q_near = self.nearest_vertex(q_rand, T)
+    #             q_new = self.new_conf(q_near, q_rand, dist)
                 
-                collision = False
+    #             collision = False
 
-                for obstacle in self.obstacles:
-                    if obstacle.check_collision(q_near, q_new):
-                        collision = True
-                        break
+    #             for obstacle in self.obstacles:
+    #                 if obstacle.check_collision(q_near, q_new):
+    #                     collision = True
+    #                     break
 
-                if not collision:
-                    T.add_vertex(q_new)
-                    T.add_edge(q_near, q_new)
+    #             if not collision:
+    #                 T.add_vertex(q_new)
+    #                 T.add_edge(q_near, q_new)
     
     def build_obstacles(self):
         for n in range(self.n_obstacles):

@@ -1,5 +1,6 @@
 import numpy as np
 from bias_roulett import Roulette
+from node import Node
 
 class Tree:
     def __init__(self, root : np.ndarray, roulette : Roulette):
@@ -9,6 +10,12 @@ class Tree:
         self.roulette = roulette
         self.initial_roulette = roulette
         self.tree_connected_to = []
+
+        self.root_node = Node(root)
+        self.nodes = [self.root_node]
+
+    def add_node(self, node: Node):
+        self.nodes.append(node)
 
     def add_vertex(self, vertex : np.ndarray):
         self.vertexes.append(vertex)
